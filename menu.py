@@ -47,16 +47,19 @@ def RunMenu(screen):
             if event.type == pygame.QUIT:
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(f"Mouse detected, button is {event.button}")
                 if event.button != 1:
                     continue
                 x, y = event.pos
-                button = pygame.rect.Rect(375, 400, 50, 50)
+                button = pygame.rect.Rect(365, 400, 50, 40)
                 if button.collidepoint(x, y):
                     game_menu.toggle()
             if event.type == pygame.VIDEORESIZE:
                 if event.w >= 863 and event.h >= 400:
                     screen = pygame.display.set_mode((event.w, event.h),
+                                                      pygame.RESIZABLE)
+                    onresize(screen, game_menu)
+                else:
+                    screen = pygame.display.set_mode((863, 400),
                                                       pygame.RESIZABLE)
                     onresize(screen, game_menu)
 
