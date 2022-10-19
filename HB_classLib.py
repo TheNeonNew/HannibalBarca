@@ -26,6 +26,7 @@ class RangerCard:
 
 class MeleeCard:
     """Melee units, spearmen, maybe elephants"""
+    pass
         
 
 if __name__ == "__main__":
