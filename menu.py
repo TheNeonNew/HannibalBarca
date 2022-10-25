@@ -5,6 +5,8 @@ from pygame_menu.examples import create_example_window
 import pygame
 pygame.init()
 
+help_fn = "help_controls.txt"
+
 
 ##def set_difficulty(selected: Tuple, value: Any) -> None:
 ##    """
@@ -17,6 +19,29 @@ def onresize(scr, menu):
     new_w, new_h = window_size[0], window_size[1]
     menu.resize(new_w, new_h)
 
+def InitHelpMenu():
+    global help_fn
+    
+    help_menu = pygame_menu.Menu(
+        height=800,
+        title='Help Menu',
+        width=800,
+        theme = pygame_menu.themes.THEME_SOLARIZED
+    )
+    help_menu.add.label(
+        "Game controls:",
+        font_color = pygame.Color("black"),
+        font_size = 22,
+    )
+    with open(help_fn) as h_f:
+        help_menu.add.label(
+            h_f.read(),
+            font_color = pygame.Color("#1B1212"),
+            font_size = 18
+
+        )
+    return help_menu
+
 def RunMenu(screen):
     game_menu = pygame_menu.Menu(
         height=800,
@@ -25,13 +50,8 @@ def RunMenu(screen):
         width=800,
        
     )
-    help_menu = pygame_menu.Menu(
-        height=800,
-        title='Help Menu',
-        width=800,
-        theme = pygame_menu.themes.THEME_SOLARIZED
-    )
-
+    
+    help_menu = InitHelpMenu()
 
 
     user_name = game_menu.add.text_input('Name: ', default='New Player', maxchar=10)

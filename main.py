@@ -2,6 +2,7 @@
 import pygame as pg
 from pygame.locals import *
 from menu import *
+from engine import *
 pygame.init()
 
 
@@ -25,6 +26,7 @@ class Game:
             for event in pg.event.get():
                 if event.type == QUIT:
                     self.go_on = False
+            
             self.screen.fill(pg.Color("yellow"))
             pg.display.update()
         pg.quit()
