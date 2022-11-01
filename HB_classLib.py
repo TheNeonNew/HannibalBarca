@@ -5,34 +5,26 @@ from enum import Enum
 class LvlMap:
     def __init__(self):
         self.textures = {
-            'RIVER' : pg.image.load("images\\river.png"),
-            'MNTIN' : pg.image.load("images\\mountain.png"),
             'PLAIN' : pg.image.load("images\\plain.png"),
-            'FOREST': pg.image.load("images\\forest.png")
+            'RIVER': pg.image.load("images\\river.png"),
         }
         self.tilemap = []
-        self.tilesize = 32
+        self.tilesize = 80
 
     def gen(self, pl):
         self.tilemap.clear()
-        match pl.progress:
-            case 0:
-                self.tilemap.append([self.textures['RIVER']*8])
-                for i in range(4):
-                    self.tilemap.append([self.textures['PLAIN']*8])
-                self.tilemap.append([self.textures['RIVER']*8])
+        self.tilemap = [[self.textures['PLAIN'] for i in range(10)] for j in range(6) if 1]
         
 
-    def draw(window):
-        for row in range(len(self.tilemap) ):
-            for column in range(len(self.tilemap[row]) ):
-                window.blit(self.textures[self.tilemap[row][column]],
-                    (column*self.tilesize, row*self.tilesize))
+    def draw(self, window):
+        for y, row in enumerate(self.tilemap):
+            for x, tile in enumerate(row):
+                window.blit(tile, (x * self.tilesize, y * self.tilesize))
 
 class Map:
     def __init__(self):
         self.should_draw = True
-        self.objs_to_draw = [Image("images\\bg_MAP", (0, 0))]
+        self.objs_to_draw = [Image("images\\main_bg.jpg", (0, 0))]
     def draw(self, scr):
         if self.should_draw:
             for elem in self.objs_to_draw:
@@ -49,6 +41,18 @@ class Button:
         self.color = color
         self.text = text
         self.image = image
+
+
+class Line:
+    def __init__(self, screen, pos, color, boldness=1):
+        self.pos = pos
+        self.color = color
+        self.boldness = boldness
+        self.sc = screen
+    def draw(self):
+        pg.draw.line(self.sc, pg.Color(self.color), 
+                 self.pos[:2], self.pos[2:], self.boldness)
+        
 
 
 class Lvls(Enum):
@@ -114,17 +118,43 @@ class BaseCard(pg.sprite.Sprite):
 class RangerCard(BaseCard):
     """Archers and more..."""
     #TODO shoot <function> and class charasterics
-    pass
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.health = kwargs["health"]
+        self.attack = kwargs["attack"]
+
+    def shoot(self):
+        pass
 
 class MeleeCard(BaseCard):
     """Melee units & spearmen"""
     #TODO damage <function>
-    pass
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.health = kwargs["health"]
+        self.attack = kwargs["attack"]
+    def damage(self):
+        pass
 
 class CavalryCard(BaseCard):
     """Cavalry and elephants"""
     #TODO damage <function> as a charge <function>
-    pass
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.health = kwargs["health"]
+        self.attack = kwargs["attack"]
+    def charge(self):
+        pass
+
+class BuffCard(BaseCard):
+    """Other cards as a potion, heal and etc"""
+    #TODO: apply <function> which will apply some effect to division
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.actTime = kwargs["acttime"]
+    def apply(self):
+        pass
+    
 
 class Player:
     """Player's class """

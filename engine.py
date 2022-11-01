@@ -12,20 +12,27 @@ class Engine:
         self.map = cllib.Map()
         self.currlvlmap = cllib.LvlMap()
         #TODO: replace cllib.ButtonTutorial with cllib.Button(...)
-        self.lvls = [cllib.ButtonTutorial, cllib.ButtonLvl1,
-                     cllib.ButtonLvl2, cllib.ButtonLvl3]
-        self.start_cards = [cllib.MeleeCard("HB_army", health=5,attack=3),
-                            cllib.CavalryCard("horse", health=3, attack=3),
-                            cllib.CavalryCard("elephant", health=5, attack=4)]
+##        self.lvls = [cllib.ButtonTutorial, cllib.ButtonLvl1,
+##                     cllib.ButtonLvl2, cllib.ButtonLvl3]
+##        self.start_cards = [cllib.MeleeCard("king", 5,3),
+##                            cllib.CavalryCard("horse", 3, 3),
+##                            cllib.CavalryCard("elephant", 5, 4)]
+        self.start_cards = None
+        self.borderline = cllib.Line(self.screen, [400, 0, 400, 480], "red", 3)
     def start(self):
-        self.pl.hand.fill(self.start_cards)
-        self.map.fill_with(self.lvls)
-        self.map.draw(self.screen)
+        self.pl.hand.append(self.start_cards)
+##        self.map.fill_with(self.lvls)
+##        self.map.draw(self.screen)
 
     def turn_level(self):
         self.map.should_draw = False
         self.currlvlmap.gen(self.pl)
         self.currlvlmap.draw(self.screen)
+
+    def update_level(self):
+        self.currlvlmap.draw(self.screen)
+        self.borderline.draw()
+        
         
         
     
