@@ -35,12 +35,34 @@ class Map:
         
 
 class Button:
-    def __init__(self, pos, size, color, text, image, **kwargs):
+    def __init__(self, pos, size, color, text, font, fontSize, **kwargs):
         self.pos = pos
         self.size = size
         self.color = color
+        
         self.text = text
-        self.image = image
+        self.font = pg.font.Font(font, fontSize)
+        self.fontSize = fontSize
+        
+        self.image = pg.Surface(self.size)
+        self.rect = self.image.get_rect()
+
+    def pressed(self, crds):
+        if self.rect.collidepoint(crds):
+            return True
+        return False
+
+    def draw(self, surface):
+        self.btntext = Text(str(self.text), self.fontSize, pg.Color("black"))
+        pg.draw.rect(surface, self.color, pg.Rect(self.pos[0], self.pos[1],
+                                         self.pos[0]+self.size[0],
+                                         self.pos[1]+self.size[1]))
+                                         
+        
+        
+        
+        
+        
 
 
 class Line:
@@ -77,11 +99,11 @@ class Text(pg.sprite.Sprite):
 
 class Image(pg.sprite.Sprite):
     """image class"""
-    def __init__(self, img_fn, pos):
-        self.image = pg.image.load(img_fn)
+    def __init__(self, img_fn, pos, imSize=(800, 800)):
+        self.image = pg.transform.scale(pg.image.load(img_fn), imSize)
         self.pos = pos
     def draw(self, scr):
-        scr.blit(self.image.get_rect(), self.pos)
+        scr.blit(self.image, self.pos)
         
 
 class BaseCard(pg.sprite.Sprite):

@@ -23,7 +23,7 @@ class Game:
         """Run the main event loop."""
         eng = Engine(self.screen)
         eng.start()
-        eng.turn_level()
+        
         UpdateEvent = pg.USEREVENT + 0
         pg.time.set_timer(UpdateEvent, 300)
         while self.go_on:
@@ -33,7 +33,19 @@ class Game:
                     self.go_on = False
                 elif event.type == UpdateEvent:
                     pass
-            eng.update_level()
+                elif event.type == pg.MOUSEBUTTONDOWN:  # if mousebutton pressed
+                    if event.button == 1:  # if it's left button
+                        # checking every btn
+                        for j, btn in enumerate(eng.mod_buttons):
+                            if btn.pressed(event.pos):  # if button pressed
+                                eng.mode = eng.mode + j
+                                eng.turn_level()
+                                break
+            if eng.map.should_draw:
+                # Updating level map or level depending on btn pressed
+                eng.update_map()
+            else:
+                eng.update_level()
             
             pg.display.update()
         pg.quit()
