@@ -19,9 +19,9 @@ class Game:
         self.go_on = True
         self.c = 1
 
-    def run(self):
+    def run(self, usnms):
         """Run the main event loop."""
-        eng = Engine(self.screen)
+        eng = Engine(self.screen, usnms)
         eng.start()
         
         UpdateEvent = pg.USEREVENT + 0
@@ -52,6 +52,6 @@ class Game:
 
 
 game = Game()
-RunMenu(pg.display.set_mode((800, 800)))
-game.run()
+usernames = RunMenu(pg.display.set_mode((800, 800)))
+game.run(usernames)
 

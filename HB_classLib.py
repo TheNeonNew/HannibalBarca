@@ -2,10 +2,11 @@ import pygame as pg
 from random import shuffle
 from enum import Enum
 
+
 class LvlMap:
     def __init__(self):
         self.textures = {
-            'PLAIN' : pg.image.load("images\\plain.png"),
+            'PLAIN': pg.image.load("images\\plain.png"),
             'RIVER': pg.image.load("images\\river.png"),
         }
         self.tilemap = []
@@ -14,55 +15,54 @@ class LvlMap:
     def gen(self, pl):
         self.tilemap.clear()
         self.tilemap = [[self.textures['PLAIN'] for i in range(10)] for j in range(6) if 1]
-        
 
     def draw(self, window):
         for y, row in enumerate(self.tilemap):
             for x, tile in enumerate(row):
                 window.blit(tile, (x * self.tilesize, y * self.tilesize))
 
+
 class Map:
     def __init__(self):
         self.should_draw = True
         self.objs_to_draw = [Image("images\\main_bg.jpg", (0, 0))]
+
     def draw(self, scr):
         if self.should_draw:
             for elem in self.objs_to_draw:
                 elem.draw(scr)
+
     def fill_with(self, objs):
         self.objs_to_draw += objs
-        
-        
+
 
 class Button:
     def __init__(self, pos, size, color, text, font, fontSize, **kwargs):
+        self.btntext = None
         self.pos = pos
         self.size = size
         self.color = color
-        
+
         self.text = text
         self.font = pg.font.Font(font, fontSize)
         self.fontSize = fontSize
-        
-        self.image = pg.Surface(self.size)
-        self.rect = self.image.get_rect()
+
+        self.rect = pg.Rect(self.pos[0], self.pos[1],
+                            self.size[0],
+                            self.size[1])
+        self.x_indentFactor = kwargs["xIndF"]  # value indicating the text indent from the button along the x-axis
+        self.y_indentFactor = kwargs['yIndF']  # value indicating the text indent from the button along the y-axis
+        self.keepOn = True
 
     def pressed(self, crds):
-        if self.rect.collidepoint(crds):
+        if self.rect.collidepoint(crds) and self.keepOn:
             return True
         return False
 
     def draw(self, surface):
+        pg.draw.rect(surface, self.color, self.rect)
         self.btntext = Text(str(self.text), self.fontSize, pg.Color("black"))
-        pg.draw.rect(surface, self.color, pg.Rect(self.pos[0], self.pos[1],
-                                         self.pos[0]+self.size[0],
-                                         self.pos[1]+self.size[1]))
-                                         
-        
-        
-        
-        
-        
+        surface.blit(self.btntext.image, (self.pos[0] + self.x_indentFactor, self.pos[1] + self.y_indentFactor))
 
 
 class Line:
@@ -71,10 +71,10 @@ class Line:
         self.color = color
         self.boldness = boldness
         self.sc = screen
+
     def draw(self):
-        pg.draw.line(self.sc, pg.Color(self.color), 
-                 self.pos[:2], self.pos[2:], self.boldness)
-        
+        pg.draw.line(self.sc, pg.Color(self.color),
+                     self.pos[:2], self.pos[2:], self.boldness)
 
 
 class Lvls(Enum):
@@ -84,30 +84,37 @@ class Lvls(Enum):
     SECOND = 2
     LAST = 3
 
+
 class Text(pg.sprite.Sprite):
     """Text class"""
+
     def __init__(self, text, size, color, font=None, **kwargs):
         super(Text, self).__init__()
         self.color = color
         self.font = pg.font.Font(font, size)
         self.kwargs = kwargs
+        self.text = text
         self.set(text)
 
     def set(self, text):
         self.image = self.font.render(str(text), 1, self.color)
         self.rect = self.image.get_rect(**self.kwargs)
 
+
 class Image(pg.sprite.Sprite):
     """image class"""
+
     def __init__(self, img_fn, pos, imSize=(800, 800)):
         self.image = pg.transform.scale(pg.image.load(img_fn), imSize)
         self.pos = pos
+
     def draw(self, scr):
         scr.blit(self.image, self.pos)
-        
+
 
 class BaseCard(pg.sprite.Sprite):
     """Parent class of all cards"""
+
     def __init__(self, Image_fn, pos):
         super().__init__()
         self.base_size = (100, 100)
@@ -118,28 +125,26 @@ class BaseCard(pg.sprite.Sprite):
         self.pos = pos
         self.not_used = True
 
-
     def draw(self, scr):
         """Draw on screen cards"""
         if self.not_used:
             scr.blit(self.rect, self.pos)
-
 
     def update(self, *args):
         # screen argument must be first!!
         self.draw(args[0])
 
     @property
-    def use():
+    def use(self):
         """Implementing using of card"""
         self.not_used = False
         return self.not_used
-        
-        
+
 
 class RangerCard(BaseCard):
     """Archers and more..."""
-    #TODO shoot <function> and class charasterics
+
+    # TODO shoot <function> and class charasterics
     def __init__(self, **kwargs):
         super().__init__()
         self.health = kwargs["health"]
@@ -148,38 +153,48 @@ class RangerCard(BaseCard):
     def shoot(self):
         pass
 
+
 class MeleeCard(BaseCard):
     """Melee units & spearmen"""
-    #TODO damage <function>
+
+    # TODO damage <function>
     def __init__(self, **kwargs):
         super().__init__()
         self.health = kwargs["health"]
         self.attack = kwargs["attack"]
+
     def damage(self):
         pass
 
+
 class CavalryCard(BaseCard):
     """Cavalry and elephants"""
-    #TODO damage <function> as a charge <function>
+
+    # TODO damage <function> as a charge <function>
     def __init__(self, **kwargs):
         super().__init__()
         self.health = kwargs["health"]
         self.attack = kwargs["attack"]
+
     def charge(self):
         pass
 
+
 class BuffCard(BaseCard):
     """Other cards as a potion, heal and etc"""
-    #TODO: apply <function> which will apply some effect to division
+
+    # TODO: apply <function> which will apply some effect to division
     def __init__(self, **kwargs):
         super().__init__()
         self.actTime = kwargs["acttime"]
+
     def apply(self):
         pass
-    
+
 
 class Player:
     """Player's class """
+
     def __init__(self):
         self.hand = []
         self.progress = Lvls.TUTORIAL
@@ -188,23 +203,26 @@ class Player:
         if self.progress.value < 3:
             self.progress = Lvls(self.progress.value + 1)
 
+
 class Hand:
     """Player's hand """
+
     def __init__(self):
         self.cards = []
+
     def fill(self, cards):
         self.cards = self.cards + [el for el in cards if 1]
 
+
 class Deck:
     """Deck which contains all cards"""
+
     def __init__(self, all_cards):
         self.cards = all_cards
-        
+
     def shuffle(self):
         random.shuffle(self.cards)
-    
-        
+
 
 if __name__ == "__main__":
     pass
-        
