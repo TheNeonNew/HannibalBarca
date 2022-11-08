@@ -26,6 +26,11 @@ class Engine:
         self.blno_mans_land = [cllib.Line(self.screen, [240, 0, 240, 480], "blue", 3),
                                cllib.Line(self.screen, [560, 0, 560, 480], "red", 3)]
         self.mode = mode
+        self.turnButton = cllib.Button((360, 500), (80, 80), Color("#E0FFFF"),
+                                       "End Turn", None, 24,
+                                       xIndF=5, yIndF=35, shape='round', fontColor="#800000")
+        self.turnArrow = cllib.Image("images/turn_arrow.jpg", (360, 580), imSize=(90, 120))
+        self.details = self.currlvlmap, self.turnButton, self.turnArrow
 
     def start(self):
         self.pl.hand.append(self.start_cards)
@@ -43,20 +48,16 @@ class Engine:
         self.map.draw(self.screen)
 
     def update_level(self):
-        self.currlvlmap.draw(self.screen)
+        for det in self.details:
+            det.draw(self.screen)
         match self.mode:
             case 1:
                 self.borderline.draw()
-                ratio = 1
-                for name, pos in zip(self.names_frame, ((150, 500), (550, 500))):
-                    self.screen.blit(name.image, (pos[0] + 5 * (len(str(name.text)) - 1) * (ratio),
-                                                  pos[1]))
-                    ratio = -ratio
-                del ratio
+                for i, name in enumerate(self.names_frame):
+                    self.screen.blit(name.image, (200 + i * 400 - len(str(name.text)) * 6, 500))
             case 2:
                 for el in self.blno_mans_land:
                     el.draw()
-                for name, pos in zip(self.names_frame, ((120, 500), (680, 500))):
-                    self.screen.blit(name.image, (pos[0] - 10 * (len(str(name.text)) - 1),
-                                                  pos[1]))
+                for j, name in enumerate(self.names_frame):
+                    self.screen.blit(name.image, (120 + j * 560 - len(str(name.text)) * 6, 500))
 

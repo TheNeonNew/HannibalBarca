@@ -46,6 +46,7 @@ class Button:
         self.text = text
         self.font = pg.font.Font(font, fontSize)
         self.fontSize = fontSize
+        self.fontColor = "black" if not kwargs.get("fontColor") else kwargs.get("fontColor") 
 
         self.rect = pg.Rect(self.pos[0], self.pos[1],
                             self.size[0],
@@ -53,6 +54,7 @@ class Button:
         self.x_indentFactor = kwargs["xIndF"]  # value indicating the text indent from the button along the x-axis
         self.y_indentFactor = kwargs['yIndF']  # value indicating the text indent from the button along the y-axis
         self.keepOn = True
+        self.shape = kwargs.get("shape")
 
     def pressed(self, crds):
         if self.rect.collidepoint(crds) and self.keepOn:
@@ -60,8 +62,11 @@ class Button:
         return False
 
     def draw(self, surface):
-        pg.draw.rect(surface, self.color, self.rect)
-        self.btntext = Text(str(self.text), self.fontSize, pg.Color("black"))
+        if self.shape == None:
+            pg.draw.rect(surface, self.color, self.rect)
+        elif self.shape == 'round':
+            pg.draw.circle(surface, self.color, self.rect.center, self.size[0]/2)
+        self.btntext = Text(str(self.text), self.fontSize, pg.Color(self.fontColor))
         surface.blit(self.btntext.image, (self.pos[0] + self.x_indentFactor, self.pos[1] + self.y_indentFactor))
 
 
@@ -106,24 +111,29 @@ class Image(pg.sprite.Sprite):
 
     def __init__(self, img_fn, pos, imSize=(800, 800)):
         self.image = pg.transform.scale(pg.image.load(img_fn), imSize)
+        self.image.set_colorkey(pg.Color("white"))
         self.pos = pos
 
     def draw(self, scr):
         scr.blit(self.image, self.pos)
 
+# distance between some objects
+def distance(cl_1, cl_2):
+    if "rect" in cl_1.__dict__ and "rect" in cl_2.__dict__:
+        pass
 
 class BaseCard(pg.sprite.Sprite):
     """Parent class of all cards"""
 
-    def __init__(self, Image_fn, pos):
+    def __init__(self, Image_fn, pos, **kwargs):
         super().__init__()
         self.base_size = (100, 100)
         self.image = pg.transform.scale(Image_fn, self.base_size)
-        self.image.fill(pg.Color("WHITE".lower()))
         self.image.set_colorkey(pg.Color("WHITE".lower()))
         self.rect = self.image.get_rect()
         self.pos = pos
         self.not_used = True
+        self.yourTurn = True if not kwargs.get("urturn") else False
 
     def draw(self, scr):
         """Draw on screen cards"""
@@ -162,9 +172,14 @@ class MeleeCard(BaseCard):
         super().__init__()
         self.health = kwargs["health"]
         self.attack = kwargs["attack"]
+        self.sight = 1
+        
 
-    def damage(self):
-        pass
+    def damage(self, opponent):
+        if self.yourTurn is True and distance(self, opponent) // 80 <= self.sight:
+            opponent.health -= self.attack
+            
+            
 
 
 class CavalryCard(BaseCard):
@@ -187,6 +202,7 @@ class BuffCard(BaseCard):
     def __init__(self, **kwargs):
         super().__init__()
         self.actTime = kwargs["acttime"]
+        self.effect = kwargs["effect"]
 
     def apply(self):
         pass
