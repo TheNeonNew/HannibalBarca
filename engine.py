@@ -1,6 +1,7 @@
 # engine for game logic
 import HB_classLib as cllib
 from pygame import Color
+from pygame import display
 
 
 class Engine:
@@ -18,10 +19,9 @@ class Engine:
                                          "Divided field", None, 54, xIndF=40, yIndF=30),
                             cllib.Button((260, 450), (300, 90), Color("yellow"),
                                          "No man's land", None, 54, xIndF=20, yIndF=30)]
-        #        self.start_cards = [cllib.MeleeCard("king", 5,3),
-        #                           cllib.CavalryCard("horse", 3, 3),
-        #                            cllib.CavalryCard("elephant", 5, 4)]
-        self.start_cards = None
+        self.start_cards = [cllib.MeleeCard(Image_fn="images/card1.jpg", pos=(100, 550), health=5,attack=3),
+                            cllib.CavalryCard(Image_fn="images/card2.jpg", pos=(250, 550), health=3, attack=3),
+                            cllib.CavalryCard(Image_fn="images/card3.png", pos=(500, 550), health=5, attack=4)]
         self.borderline = cllib.Line(self.screen, [400, 0, 400, 480], "black", 3)
         self.blno_mans_land = [cllib.Line(self.screen, [240, 0, 240, 480], "blue", 3),
                                cllib.Line(self.screen, [560, 0, 560, 480], "red", 3)]
@@ -30,7 +30,7 @@ class Engine:
                                        "End Turn", None, 24,
                                        xIndF=5, yIndF=35, shape='round', fontColor="#800000")
         self.turnArrow = cllib.Image("images/turn_arrow.jpg", (360, 580), imSize=(90, 120))
-        self.details = self.currlvlmap, self.turnButton, self.turnArrow
+        self.details = self.currlvlmap, self.turnButton, self.turnArrow, self.start_cards
 
     def start(self):
         self.pl.hand.append(self.start_cards)
@@ -49,7 +49,13 @@ class Engine:
 
     def update_level(self):
         for det in self.details:
-            det.draw(self.screen)
+            if det is self.start_cards or isinstance(det, list | tuple):
+                for atom in det:
+                    atom.draw(self.screen)
+                
+            else:
+                det.draw(self.screen)
+            
         match self.mode:
             case 1:
                 self.borderline.draw()
@@ -60,4 +66,5 @@ class Engine:
                     el.draw()
                 for j, name in enumerate(self.names_frame):
                     self.screen.blit(name.image, (120 + j * 560 - len(str(name.text)) * 6, 500))
+        display.flip()
 
