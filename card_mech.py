@@ -2,10 +2,12 @@
 from random import shuffle
 import pygame as pg
 
+
 # distance between some objects
 def distance(cl_1, cl_2):
     if "rect" in cl_1.__dict__ and "rect" in cl_2.__dict__:
-        pass
+        return cl_2.rect.x - cl_1.rect.x, cl_2.rect.y, cl_2.rect.y - cl_1.rect.y
+
 
 class BaseCard(pg.sprite.Sprite):
     """Parent class of all cards"""
@@ -13,7 +15,9 @@ class BaseCard(pg.sprite.Sprite):
     def __init__(self, Image_fn, pos, **kwargs):
         super().__init__()
         self.base_size = (80, 100)
-        self.image = pg.transform.scale(pg.image.load(Image_fn).convert_alpha() if "png" in Image_fn else pg.image.load(Image_fn).convert(), self.base_size)
+        self.image = pg.transform.scale(
+            pg.image.load(Image_fn).convert_alpha() if "png" in Image_fn else pg.image.load(Image_fn).convert(),
+            self.base_size)
         self.image.set_colorkey(pg.Color("WHITE".lower()))
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = pos
@@ -45,11 +49,12 @@ class RangerCard(BaseCard):
         super().__init__(Image_fn, pos)
         self.health = kwargs["health"]
         self.attack = kwargs["attack"]
-        self.sight = 2 if not kwargs.get("sight") else kwargs.get("sight") 
+        self.sight = 2 if not kwargs.get("sight") else kwargs.get("sight")
 
     def shoot(self, other):
-        if distance():
-            pass
+        if distance(self, other):
+            other.health -= self.attack
+
 
 
 class MeleeCard(BaseCard):
@@ -61,13 +66,10 @@ class MeleeCard(BaseCard):
         self.health = kwargs["health"]
         self.attack = kwargs["attack"]
         self.sight = 1
-        
 
     def damage(self, opponent):
         if self.yourTurn is True and distance(self, opponent) // 80 <= self.sight:
             opponent.health -= self.attack
-            
-            
 
 
 class CavalryCard(BaseCard):
@@ -93,7 +95,9 @@ class BuffCard(BaseCard):
         self.effect = kwargs["effect"]
 
     def apply(self):
-        pass
+        if card.rect.x // 80 == self.rect.x // 80:
+            # TODO: make effect
+            pass
 
 
 class Player:
@@ -101,6 +105,11 @@ class Player:
 
     def __init__(self):
         self.hand = []
+
+    def do(self):
+        for card in self.hand:
+            card.update()
+
 
 
 class Hand:
@@ -121,7 +130,6 @@ class Deck:
 
     def shuffle(self):
         shuffle(self.cards)
-
 
 
 if __name__ == "__main__":

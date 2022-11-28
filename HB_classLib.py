@@ -22,7 +22,8 @@ class LvlMap:
             for x, tile in enumerate(row):
                 window.blit(tile, (x * self.tilesize, y * self.tilesize))
 
-    def which(self, crds):
+    @staticmethod
+    def which(crds):
         if crds[1] in range(481):
             tile_x = (crds[0] // 80) + 1
             tile_y = (crds[1] // 80) + 1
@@ -58,7 +59,7 @@ class Button:
         self.text = text
         self.font = pg.font.Font(font, fontSize)
         self.fontSize = fontSize
-        self.fontColor = "black" if not kwargs.get("fontColor") else kwargs.get("fontColor") 
+        self.fontColor = "black" if not kwargs.get("fontColor") else kwargs.get("fontColor")
 
         self.rect = pg.Rect(self.pos[0], self.pos[1],
                             self.size[0],
@@ -74,10 +75,10 @@ class Button:
         return False
 
     def draw(self, surface):
-        if self.shape == None:
+        if self.shape is None:
             pg.draw.rect(surface, self.color, self.rect)
         elif self.shape == 'round':
-            pg.draw.circle(surface, self.color, self.rect.center, self.size[0]/2)
+            pg.draw.circle(surface, self.color, self.rect.center, self.size[0] / 2)
         self.btntext = Text(str(self.text), self.fontSize, pg.Color(self.fontColor))
         surface.blit(self.btntext.image, (self.pos[0] + self.x_indentFactor, self.pos[1] + self.y_indentFactor))
 
@@ -93,6 +94,18 @@ class Line:
         pg.draw.line(self.sc, pg.Color(self.color),
                      self.pos[:2], self.pos[2:], self.boldness)
 
+
+class CardSlot:
+    def __init__(self, scr, ps_slot_lst, color, bn=1):
+        self.topline = Line(scr, ps_slot_lst[0], color, boldness=bn)
+        self.bottomline = Line(scr, ps_slot_lst[1], color, boldness=bn)
+        self.leftline = Line(scr, ps_slot_lst[2], color, boldness=bn)
+        self.rightline = Line(scr, ps_slot_lst[3], color, boldness=bn)
+
+    def draw(self, *args):
+        for elem in self.__dict__:
+            if "line" in elem:
+                self.__dict__.get(elem).draw()
 
 
 
@@ -117,15 +130,19 @@ class Image(pg.sprite.Sprite):
     """image class"""
 
     def __init__(self, img_fn, pos, imSize=(800, 800)):
-        self.image = pg.transform.scale(pg.image.load(img_fn), imSize)
+        super().__init__()
+        if isinstance(img_fn, str):
+            if ".png" in img_fn:
+                self.image = pg.transform.scale(pg.image.load(img_fn).convert_alpha(), imSize)
+            else:
+                self.image = pg.transform.scale(pg.image.load(img_fn).convert(), imSize)
+        else:
+            self.image = img_fn
         self.image.set_colorkey(pg.Color("white"))
         self.pos = pos
 
     def draw(self, scr):
         scr.blit(self.image, self.pos)
-
-
-
 
 
 
