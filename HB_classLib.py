@@ -1,9 +1,5 @@
 import pygame as pg
 
-
-from card_mech import *
-
-
 class LvlMap:
     def __init__(self):
         self.textures = {
@@ -132,13 +128,10 @@ class Image(pg.sprite.Sprite):
     def __init__(self, img_fn, pos, imSize=(800, 800)):
         super().__init__()
         if isinstance(img_fn, str):
-            if ".png" in img_fn:
-                self.image = pg.transform.scale(pg.image.load(img_fn).convert_alpha(), imSize)
-            else:
-                self.image = pg.transform.scale(pg.image.load(img_fn).convert(), imSize)
+            self.image = pg.transform.scale(pg.image.load(img_fn).convert_alpha().convert(), imSize)
         else:
             self.image = img_fn
-        self.image.set_colorkey(pg.Color("white"))
+        self.image.set_colorkey([255,255,255])
         self.pos = pos
 
     def draw(self, scr):

@@ -20,6 +20,18 @@ class Game:
         self.rectangle_draging = False
         self.taken_rect = None
         self.tr_ratio = None
+        self.undo_rect = None
+
+    def find_rect(self, engi, pos, mod="tkn"):
+        """pos -> event.pos"""
+        for j, rectangle in enumerate([k.rect for k in engi.details[engi.details.index(engi.start_cards)]]):
+            if rectangle.collidepoint(pos):
+                self.rectangle_draging = True
+                if mod == "tkn":
+                    self.taken_rect = rectangle
+                else:
+                    self.undo_rect = rectangle
+                self.tr_ratio = j
 
 
     def run(self, usnms):
@@ -34,8 +46,7 @@ class Game:
             for event in pg.event.get():
                 if event.type == QUIT:
                     self.go_on = False
-                elif event.type == UpdateEvent:
-                    pass
+                
                 elif event.type == pg.MOUSEBUTTONDOWN:  # if mousebutton pressed
                     if event.button == 1:  # if it's left button
                         # checking every btn
@@ -44,19 +55,18 @@ class Game:
                                 eng.mode = eng.mode + j
                                 eng.turn_level()
                                 break
-                        # arrow reflection
+                        # arrow reflection and crossed  swords appearing
                         if eng.details[1].pressed(event.pos):
-                            # TODO: end turn button's utter functions implementing
-                            eng.details[2] = cllib.Image(pg.transform.flip(eng.details[2].image, True, False),
-                                                         (360, 680), imSize=(90, 120))
+                            eng.up_phase()
+                            eng.check_turns(pg.transform.flip(eng.details[2].image, True, False))
+                            
 
                         if not eng.map.should_draw:
-                            # print([(k.rect.x, k.rect.y) for k in eng.details[eng.details.index(eng.start_cards)]])
-                            for j, rectangle in enumerate([k.rect for k in eng.details[eng.details.index(eng.start_cards)]]):
-                                if rectangle.collidepoint(event.pos):
-                                    self.rectangle_draging = True
-                                    self.taken_rect = rectangle
-                                    self.tr_ratio = j
+                            self.find_rect(eng, event.pos)
+                    if event.button == 3: # if it's right button
+                        self.find_rect(eng, event.pos, mod="undo")
+                        if self.undo_rect is not None and eng.currlvlmap.which((self.undo_rect.x, self.undo_rect.y)):
+                            self.undo_rect.x, self.undo_rect.y = eng.cardpos_acc[self.tr_ratio]
 
 
                 elif event.type == pygame.MOUSEBUTTONUP:
@@ -77,6 +87,9 @@ class Game:
                         self.taken_rect.x = mouse_x
                         self.taken_rect.y = mouse_y
                         eng.update_level()
+
+                elif event.type == UpdateEvent:
+                    pass
 
             if eng.map.should_draw:
                 # Updating level map or level depending on btn pressed

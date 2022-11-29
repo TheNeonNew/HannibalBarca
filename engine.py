@@ -1,5 +1,6 @@
 # engine for game logic
 import HB_classLib as cllib
+from card_mech import *
 from pygame import Color, display
 import itertools as itools
 from turn import Turn
@@ -19,11 +20,11 @@ class Engine:
                             cllib.Button((260, 450), (300, 90), Color("yellow"),
                                          "No man's land", None, 54, xIndF=20, yIndF=30)]
 
-        self.start_cards = [cllib.MeleeCard(Image_fn="images/card1.jpg", pos=(10, 575), health=5, attack=3),
-                            cllib.CavalryCard(Image_fn="images/card2.jpg", pos=(115, 575), health=3, attack=3),
-                            cllib.CavalryCard(Image_fn="images/card3.png", pos=(240, 575), health=5, attack=4)]
-        self.pl = cllib.Player()
-        self.pl2 = cllib.Player()
+        self.start_cards = [MeleeCard(Image_fn="images/card1.jpg", pos=(10, 575), health=5, attack=3),
+                            CavalryCard(Image_fn="images/card2.xcf", pos=(108, 575), health=3, attack=3),
+                            CavalryCard(Image_fn="images/card3.xcf", pos=(198, 575), health=5, attack=4)]
+        self.pl = Player()
+        self.pl2 = Player()
 
         self.map = cllib.Map()
         self.currlvlmap = cllib.LvlMap()
@@ -47,12 +48,21 @@ class Engine:
         """Increase phase ratio unconditionly"""
         +self.turneng
 
-    def check_turns(self):
+    def check_turns(self, transformed):
         self.turneng.do_logic()
-        if self.turneng.phase == 2:
-            self.details[2] = self.turnFight
-        else:
-            self.details[2] = self.turnArrow
+        match self.turneng.phase:
+            case 0:
+                self.details[2] = cllib.Image(self.turnArrow.image,
+                                            (360, 680), imSize=(90, 120)
+                                            )
+
+            case 1:
+                self.details[2] = cllib.Image(transformed,
+                                            (360, 680), imSize=(90, 120))
+            case 2:
+                self.details[2] = cllib.Image(self.turnFight.image,
+                                            (360, 680), imSize=(90, 120)
+                                            )
 
 
     def genSlots(self):
@@ -74,7 +84,8 @@ class Engine:
 
     def start(self):
         """Create default settings and init needed classes, draw map with mods buttons"""
-        self.pl.hand.append(self.start_cards)
+        self.pl.hand.fill([self.start_cards[0], self.start_cards[1]])
+        self.pl2.hand.fill([self.start_cards[2]])
         self.map.fill_with(self.mod_buttons)
         self.map.draw(self.screen)
 
@@ -108,7 +119,6 @@ class Engine:
                     el.draw()
                 for j, name in enumerate(self.names_frame):
                     self.screen.blit(name.image, (120 + j * 560 - len(str(name.text)) * 6, 500))
-        self.check_turns()
         display.flip()
 
     def fight(self):

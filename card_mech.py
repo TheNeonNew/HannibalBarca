@@ -1,12 +1,13 @@
 # card mechanic implemention
 from random import shuffle
 import pygame as pg
+from HB_classLib import Image
 
 
 # distance between some objects
 def distance(cl_1, cl_2):
     if "rect" in cl_1.__dict__ and "rect" in cl_2.__dict__:
-        return cl_2.rect.x - cl_1.rect.x, cl_2.rect.y, cl_2.rect.y - cl_1.rect.y
+        return cl_2.rect.x - cl_1.rect.x, cl_2.rect.y - cl_1.rect.y
 
 
 class BaseCard(pg.sprite.Sprite):
@@ -14,21 +15,18 @@ class BaseCard(pg.sprite.Sprite):
 
     def __init__(self, Image_fn, pos, **kwargs):
         super().__init__()
-        self.base_size = (80, 100)
-        self.image = pg.transform.scale(
-            pg.image.load(Image_fn).convert_alpha() if "png" in Image_fn else pg.image.load(Image_fn).convert(),
-            self.base_size)
-        self.image.set_colorkey(pg.Color("WHITE".lower()))
-        self.rect = self.image.get_rect()
+        self.base_size = (73, 98)
+        self.im = Image(Image_fn, pos, self.base_size)
+        self.rect = self.im.image.get_rect()
         self.rect.x, self.rect.y = pos
         self.pos = pos
         self.not_used = True
-        self.yourTurn = True if not kwargs.get("urturn") else False
 
+        
     def draw(self, scr):
         """Draw on screen cards"""
         if self.not_used:
-            scr.blit(self.image, (self.rect.x, self.rect.y))
+            scr.blit(self.im.image, (self.rect.x, self.rect.y))
 
     def update(self, *args):
         # screen argument must be first!!
@@ -68,7 +66,7 @@ class MeleeCard(BaseCard):
         self.sight = 1
 
     def damage(self, opponent):
-        if self.yourTurn is True and distance(self, opponent) // 80 <= self.sight:
+        if distance(self, opponent) // 80 <= self.sight:
             opponent.health -= self.attack
 
 
@@ -104,11 +102,11 @@ class Player:
     """Player's class """
 
     def __init__(self):
-        self.hand = []
+        self.hand = Hand()
 
-    def do(self):
+    def do(self, scr):
         for card in self.hand:
-            card.update()
+            card.update(scr)
 
 
 
@@ -117,9 +115,23 @@ class Hand:
 
     def __init__(self):
         self.cards = []
+        self.index = 0
 
     def fill(self, cards):
         self.cards = self.cards + [el for el in cards if 1]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index == len(self.cards):
+            self.index = 0
+            raise StopIteration
+        else:
+            res = self.cards[self.index]
+            self.index += 1
+            return res
+        
 
 
 class Deck:

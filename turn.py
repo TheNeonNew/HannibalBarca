@@ -33,8 +33,8 @@ class Turn:
         """
         match self.phase:
             case 0:
-                self.pl1.do()
+                self.pl1.do(self.engine.screen)
             case 1:
-                self.pl2.do()
+                self.pl2.do(self.engine.screen)
             case 2:
                 self.engine.fight()
