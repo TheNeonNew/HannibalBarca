@@ -1,5 +1,6 @@
 import pygame as pg
 
+
 class LvlMap:
     def __init__(self):
         self.textures = {
@@ -9,7 +10,7 @@ class LvlMap:
         self.tilemap = []
         self.tilesize = 80
 
-    def gen(self, pl):
+    def gen(self):
         self.tilemap.clear()
         self.tilemap = [[self.textures['PLAIN'] for i in range(10)] for j in range(6) if 1]
 
@@ -17,6 +18,11 @@ class LvlMap:
         for y, row in enumerate(self.tilemap):
             for x, tile in enumerate(row):
                 window.blit(tile, (x * self.tilesize, y * self.tilesize))
+
+    def set(self, scr):
+        self.gen()
+        self.draw(scr)
+
 
     @staticmethod
     def which(crds):
@@ -104,8 +110,6 @@ class CardSlot:
                 self.__dict__.get(elem).draw()
 
 
-
-
 class Text(pg.sprite.Sprite):
     """Text class"""
 
@@ -131,12 +135,11 @@ class Image(pg.sprite.Sprite):
             self.image = pg.transform.scale(pg.image.load(img_fn).convert_alpha().convert(), imSize)
         else:
             self.image = img_fn
-        self.image.set_colorkey([255,255,255])
+        self.image.set_colorkey([255, 255, 255])
         self.pos = pos
 
     def draw(self, scr):
         scr.blit(self.image, self.pos)
-
 
 
 if __name__ == "__main__":
