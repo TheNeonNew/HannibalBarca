@@ -1,0 +1,5 @@
+Copy these commands in cmd one by one:
+
+
+pip install pygame
+pip install pygame-menu
