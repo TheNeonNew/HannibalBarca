@@ -2,8 +2,10 @@
 import HB_classLib as cllib
 from card_mech import *
 from pygame import Color, display
+from time import sleep
 import itertools as itools
 from turn import Turn
+from fight_mech import *
 
 
 def genSlots(details, screen):
@@ -34,9 +36,15 @@ class Engine:
                             cllib.Button((260, 450), (300, 90), Color("yellow"),
                                          "No man's land", None, 54, xIndF=20, yIndF=30)]
 
-        self.start_cards = [MeleeCard(Image_fn="images/card1.jpg", pos=(10, 575), health=5, attack=3),
-                            CavalryCard(Image_fn="images/card2.xcf", pos=(108, 575), health=3, attack=3),
-                            CavalryCard(Image_fn="images/card3.xcf", pos=(198, 575), health=5, attack=4)]
+        self.start_cards = [CavalryCard(Image_fn="images/kar_gannibal.png", pos=(10, 575), health=5, attack=4),
+                            RangerCard(Image_fn="images/kar_archer.png", pos=(105, 575), health=3, attack=3),
+                            MeleeCard(Image_fn="images/kar_infantryman.png", pos=(200, 575), health=5, attack=4),
+                            CavalryCard(Image_fn="images/kar_horseman.png", pos=(295, 575), health=5, attack=3),
+                            MeleeCard(Image_fn="images/rom_legioner.png", pos=(420, 575), health=3, attack=3),
+                            CavalryCard(Image_fn="images/rom_horseman.png", pos=(515, 575), health=5, attack=4),
+                            RangerCard(Image_fn="images/rom_saggittary.png", pos=(610, 575), health=5, attack=3),
+                            CavalryCard(Image_fn="images/rom_scipion.png", pos=(705, 575), health=6, attack=3)
+                            ]
         self.pl = Player()
         self.pl2 = Player()
 
@@ -80,8 +88,8 @@ class Engine:
 
     def start(self):
         """Create default settings and init needed classes, draw map with mods buttons"""
-        self.pl.hand.fill([self.start_cards[0], self.start_cards[1]])
-        self.pl2.hand.fill([self.start_cards[2]])
+        self.pl.hand.fill(self.start_cards[:4])
+        self.pl2.hand.fill(self.start_cards[4:])
         self.map.fill_with(self.mod_buttons)
         self.map.draw(self.screen)
 
@@ -100,10 +108,10 @@ class Engine:
         nested = lambda b: b is self.start_cards or isinstance(b, list | tuple)
         for det in self.details:
             det.draw(self.screen) if not nested(det) else [atom.draw(self.screen) for atom in det]
-        blitter = lambda align, factor: (
+        blitter = lambda align, factor: [
             self.screen.blit(name.image, (align + index * factor - len(str(name.text)) * 6, 500))
             for index, name in enumerate(self.names_frame)
-        )
+        ]
         match self.mode:
             case 1:
                 self.borderline.draw()
@@ -114,4 +122,14 @@ class Engine:
         display.flip()
 
     def fight(self):
-        pass
+        for card in self.start_cards:
+            if not card.alive:
+                card.delete()
+            else:
+                move(card_=card)
+                # TOdO: do thing which allows to check every card and damage it
+        for index in range(len(self.start_cards)):
+            damage_adjacent(self.start_cards[index], self.start_cards)
+
+
+

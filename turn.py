@@ -1,4 +1,5 @@
 # Turn class
+from itertools import chain
 
 
 class Turn:
@@ -11,6 +12,7 @@ class Turn:
         plr1: Player (field for init Player 1)
         plr2: Player (field for init Player 2)
         engine: Engine (class for manipulating interactions between objs)"""
+        self.repeated = False
         self.phase = 0
         self.pl1 = plr1
         self.pl2 = plr2
@@ -27,14 +29,32 @@ class Turn:
         else:
             self.phase += 1
 
+    def return_back(self):
+        """Returns all cards which survives in slots"""
+        for card in chain(self.pl1.hand, self.pl2.hand):
+            if card.alive:
+                card.rect.x, card.rect.y = card.pos
+            else:
+                if card.pos[0] == 10:
+                    pass
+                elif card.pos[0] == 705:
+                    pass
+
+
+
     def do_logic(self):
         """Defines player 1 or player 2 move if it's proper state for it
         Otherwise, declares that fight function must be called
         """
         match self.phase:
             case 0:
-                self.pl1.do(self.engine.screen)
-            case 1:
-                self.pl2.do(self.engine.screen)
+                if self.repeated:
+                    self.return_back()
+                    self.repeated = False
             case 2:
+                self.pl1.do(self.engine.screen)
+                self.pl2.do(self.engine.screen)
                 self.engine.fight()
+                self.repeated = True
+
+

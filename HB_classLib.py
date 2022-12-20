@@ -9,6 +9,7 @@ class LvlMap:
         }
         self.tilemap = []
         self.tilesize = 80
+        self.deployed_cards = []
 
     def gen(self):
         self.tilemap.clear()
@@ -23,7 +24,6 @@ class LvlMap:
         self.gen()
         self.draw(scr)
 
-
     @staticmethod
     def which(crds):
         if crds[1] in range(481):
@@ -34,7 +34,11 @@ class LvlMap:
             return None
 
     def deploy(self, card):
-        pass
+        self.deployed_cards.append(card)
+
+    def undo(self, card):
+        if card in self.deployed_cards:
+            self.deployed_cards.remove(card)
 
 
 class Map:
@@ -115,6 +119,8 @@ class Text(pg.sprite.Sprite):
 
     def __init__(self, text, size, color, font=None, **kwargs):
         super(Text, self).__init__()
+        self.rect = None
+        self.image = None
         self.color = color
         self.font = pg.font.Font(font, size)
         self.kwargs = kwargs
@@ -133,6 +139,8 @@ class Image(pg.sprite.Sprite):
         super().__init__()
         if isinstance(img_fn, str):
             self.image = pg.transform.scale(pg.image.load(img_fn).convert_alpha().convert(), imSize)
+            if "rom" in img_fn or "kar" in img_fn:
+                self.image.set_colorkey([0, 0, 0])
         else:
             self.image = img_fn
         self.image.set_colorkey([255, 255, 255])

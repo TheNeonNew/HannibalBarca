@@ -21,8 +21,8 @@ class BaseCard(pg.sprite.Sprite):
         self.rect.x, self.rect.y = pos
         self.pos = pos
         self.not_used = True
+        self.damaged = 0
 
-        
     def draw(self, scr):
         """Draw on screen cards"""
         if self.not_used:
@@ -32,26 +32,30 @@ class BaseCard(pg.sprite.Sprite):
         # screen argument must be first!!
         self.draw(args[0])
 
-    @property
-    def use(self):
+    def delete(self):
         """Implementing using of card"""
         self.not_used = False
         return self.not_used
+
+    @property
+    def alive(self):
+        return self.health > 0
+
+    def damage(self, opponent):
+        dist = distance(self, opponent)
+        if dist[0] // 80 <= self.sight and not dist[1]:
+            opponent.health -= self.attack
+            self.damaged = True
 
 
 class RangerCard(BaseCard):
     """Archers and more..."""
 
-    # TODO shoot <function> and class charasterics
     def __init__(self, Image_fn, pos, *args, **kwargs):
         super().__init__(Image_fn, pos)
         self.health = kwargs["health"]
         self.attack = kwargs["attack"]
         self.sight = 2 if not kwargs.get("sight") else kwargs.get("sight")
-
-    def shoot(self, other):
-        if distance(self, other):
-            other.health -= self.attack
 
 
 
@@ -65,9 +69,6 @@ class MeleeCard(BaseCard):
         self.attack = kwargs["attack"]
         self.sight = 1
 
-    def damage(self, opponent):
-        if distance(self, opponent) // 80 <= self.sight:
-            opponent.health -= self.attack
 
 
 class CavalryCard(BaseCard):
@@ -78,9 +79,20 @@ class CavalryCard(BaseCard):
         super().__init__(Image_fn, pos)
         self.health = kwargs["health"]
         self.attack = kwargs["attack"]
+        self.sight = 2
 
-    def charge(self):
-        pass
+    def damage(self, other):
+        dist = distance(self, other)
+        if dist[0] // 80 <= self.sight and not dist[1]:
+            if has_acceleration := hasattr(self, "acceleration"):
+                self.rect.x += self.acceleration * 20
+            elif not has_acceleration and self.pos[0] <= 400:
+                self.acceleleration = 1
+            else:
+                self.acceleleration = 0
+
+            other.health -= self.attack
+            self.damaged = True
 
 
 class BuffCard(BaseCard):
@@ -131,7 +143,6 @@ class Hand:
             res = self.cards[self.index]
             self.index += 1
             return res
-        
 
 
 class Deck:

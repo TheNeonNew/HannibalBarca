@@ -81,7 +81,7 @@ class Game:
                 eng.update_map()
             else:
                 eng.update_level()
-
+                eng.turneng.do_logic()
             pg.display.update()
         pg.quit()
 
